@@ -4,9 +4,9 @@ mod front_of_house {
         fn seat_at_table() {}
     }
 
-    mod serving {
-        fn take_order() {}
-        fn serve_order() {}
+    pub mod serving {
+        pub fn take_order() {}
+        pub fn serve_order() {}
         fn take_payement() {}
     }
 
@@ -28,6 +28,15 @@ mod front_of_house {
         }
     }
 }
+//load from file src/mymod.rs or mymod/lib.rs
+mod mymod;
+
+use crate::front_of_house::hosting;
+use crate::front_of_house::serving::serve_order as serve;
+use crate::front_of_house::serving::take_order;
+use std::collections::HashMap;
+
+use crate::mymod::lists;
 
 pub fn eat_at_restaurant() {
     crate::front_of_house::hosting::add_to_waitlist();
@@ -40,4 +49,16 @@ pub fn eat_at_restaurant() {
     println!("I would like {} toast please", meal.toast);
 
     let order1 = front_of_house::Appetizer::Soup;
+    let order2 = front_of_house::Appetizer::Salad;
+
+    // with path
+    hosting::add_to_waitlist();
+
+    take_order();
+    serve();
+
+    let mut map = HashMap::new();
+    map.insert(1, 2);
+
+    lists::add_to_list();
 }
