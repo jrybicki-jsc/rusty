@@ -9,8 +9,21 @@ fn largest<T: PartialOrd + Copy>(list: &[T]) -> T {
     largest
 }
 
+fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+
 fn main() {
     println!("Hello, world!");
+
+    let a = String::from("Hello");
+    let b = "Hi";
+    let res = longest(a.as_str(), b);
+    println!("Longer {}", res);
 
     let n_list = vec![32, 54, 32, 101, 44];
     let res = largest(&n_list);
