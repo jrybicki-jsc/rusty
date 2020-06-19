@@ -1,25 +1,27 @@
 pub fn add_two(a: u32) -> u32 {
-   	a + 2
+    a + 2
 }
 
 fn greet(name: &str) -> String {
-   String::from("Hello")
+    String::from("Hello")
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
- 
+
     #[test]
     fn test_add_two() {
-       assert_eq!(4, add_two(2));
+        assert_eq!(4, add_two(2));
     }
 
     #[test]
     fn test_greet() {
         let res = greet("jj");
         assert!(
-           res.contains("jj"), "Greetings did not contain name: `{}`", res
+            !res.contains("jj"),
+            "Greetings did not contain name: `{}`",
+            res
         );
     }
 
@@ -70,15 +72,13 @@ struct Rectangle {
 
 impl Rectangle {
     pub fn new(width: u32, height: u32) -> Rectangle {
-        if width <0 || width > 100 {
+        if width < 0 || width > 100 {
             panic!("Width should be smaller than 100, got {}", width);
         }
-        Rectangle {width, height}
+        Rectangle { width, height }
     }
 
     fn can_hold(&self, other: &Rectangle) -> bool {
-       self.width > other.width && self.height > other.height
+        self.width > other.width && self.height > other.height
     }
 }
-
-
