@@ -1,6 +1,7 @@
 use std::env;
 use std::fs;
 use std::process;
+use std::error::Error;
 
 struct Config {
     query: String,
@@ -15,9 +16,17 @@ fn main() {
     });
 
     println!("Searching for {} in {}", config.query, config.filename);
+    if let Err(e) = run(config) {
+       println!("Application error: {}", e);
+       process::exit(1);
+    }
+}
 
-    let contents = fs::read_to_string(config.filename).expect("Unable to open file");
+fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    let contents = fs::read_to_string(config.filename)?;
     println!("Text:\n{}", contents);
+
+    Ok(())
 }
 
 impl Config {
