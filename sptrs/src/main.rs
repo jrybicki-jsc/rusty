@@ -25,6 +25,29 @@ fn main() {
 
     let y = MyBox::new(x);
     assert_eq!(5, *y);
+
+    let me = MyBox::new(String::from("Rust"));
+    hello(&me);
+
+    let c = CustomSmartPointer{
+        data: String::from("my stuff"),
+    };
+
+    println!("Custom smp. ptr created!");
+}
+
+fn hello(name: &str) {
+   println!("Hello, {}!", name);
+}
+
+struct CustomSmartPointer {
+   data: String,
+}
+
+impl Drop for CustomSmartPointer {
+   fn drop(&mut self) {
+      println!("Dropping custom sm. pointer with data {}!", self.data);
+   }
 }
 
 struct MyBox<T>(T);
@@ -35,6 +58,12 @@ impl<T> MyBox<T> {
    }
 
 }
+
+impl<T> Drop for MyBox<T> {
+    fn drop(&mut self) { 
+        println!("Dropping mybox...");
+    }
+} 
 
 use std::ops::Deref;
 
