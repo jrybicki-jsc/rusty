@@ -1,5 +1,7 @@
 use std::thread;
 use std::time::Duration;
+use std::sync::mpsc;
+
 
 fn main() {
    let v = vec![1, 2, 3];
@@ -19,4 +21,43 @@ fn main() {
    }
 
    handle.join().unwrap();
+
+   //mpsc: multiple producer single consumer
+   let (tx, rx) = mpsc::channel();
+   let tx1 = mpsc::Sender::clone(&tx);
+
+   thread::spawn(move || {
+        let val = String::from("hi");
+        tx.send(val).unwrap();
+        //tx.send borrows the value so it is no longer available here:
+        //println!("val = {}", val);
+
+       let vals = vec![
+            String::from("from"),
+            String::from("the"),
+            String::from("thread"),
+       ];
+       for val in vals {
+           tx.send(val).unwrap();
+           thread::sleep(Duration::from_secs(1));
+       }
+   });
+
+   thread::spawn(move || {
+      let vals = vec![
+            String::from("and"),
+            String::from("some"),
+            String::from("more"),
+       ];
+       for val in vals {
+           tx1.send(val).unwrap();
+           thread::sleep(Duration::from_secs(1));
+       }
+   });
+
+
+
+   for recieved in rx {
+          println!("Got {}!", recieved); 
+   }
 }
