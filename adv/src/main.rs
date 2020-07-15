@@ -21,4 +21,52 @@ fn main() {
     unsafe {
         println!("COUNTER {}", COUNTER);
     }
+
+    let p = Point { x: 1, y: 2 };
+    let p2 = Point { x: 2, y: 1 };
+
+    assert_eq!(p + p2, Point { x: 3, y: 3 });
+
+    let p = Point { x: 1, y: 2 };
+    assert_eq!(p + 1, Point { x: 2, y: 3 });
+
+    let p = Point { x: 1, y: 2 };
+    println!("Point is: {}", p);
+}
+
+use std::fmt;
+use std::ops::Add;
+
+#[derive(Debug, PartialEq)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+impl fmt::Display for Point {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
+    }
+}
+
+impl Add for Point {
+    type Output = Point;
+
+    fn add(self, other: Point) -> Point {
+        Point {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
+    }
+}
+
+impl Add<i32> for Point {
+    type Output = Point;
+
+    fn add(self, other: i32) -> Point {
+        Point {
+            x: self.x + other,
+            y: self.y + other,
+        }
+    }
 }
