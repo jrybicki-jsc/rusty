@@ -1,3 +1,15 @@
+
+use adv::HelloMacro;
+
+struct Pancakes;
+
+impl HelloMacro for Pancakes {
+    fn hello_macro() {
+        println!("Hello, Macro! My name is Pancakes!");
+    }
+}
+
+
 static mut COUNTER: u32 = 0;
 
 fn add_to_count(inc: u32) {
@@ -6,8 +18,25 @@ fn add_to_count(inc: u32) {
     }
 }
 
+fn add_one(x:i32) -> i32 {
+    x + 1
+}
+
+fn do_twice(f: fn(i32) -> i32, arg: i32) -> i32 {
+   f(arg) + f(arg)
+}
+
+fn get_cl() -> Box<dyn Fn(i32) -> i32> {
+   Box::new(|x| x +1 )
+}
+
 fn main() {
+    Pancakes::hello_macro();
+
+
     let mut num = 7;
+    do_twice(add_one, 4);
+    
 
     let r1 = &num as *const i32;
     let r2 = &mut num as *mut i32;
