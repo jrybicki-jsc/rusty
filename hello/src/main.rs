@@ -1,4 +1,7 @@
 use std::net::TcpListener;
+use std::io::prelude::*;
+use std::net::TcpStream;
+use std::fs;
 
 
 fn main() {
@@ -6,7 +9,27 @@ fn main() {
 
     for stream in listener.incoming() {
        let stream = stream.unwrap();
-       println!("Connnection established");
+       handle_connection(stream);
    }
   
+}
+
+fn handle_connection(mut stream: TcpStream) {
+   let mut buffer = [0; 1024];
+   stream.read(&mut buffer).unwrap();
+   
+   println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
+
+   let get = b"GET / HTTP/1.1\r\n";
+   let response =  if buffer.starts_with(get) {
+      let content = fs::read_to_string("hello.html").unwrap();
+
+      format!("HTTP/1.1 200 OK\r\n\r\n{}", content)
+  } else {
+      format!("HTTP/1.1 404 NOT FOUND\r\n\r\n")
+   };
+
+   stream.write(response.as_bytes()).unwrap();
+   stream.flush().unwrap();
+   
 }
