@@ -4,8 +4,8 @@ use std::sync::Mutex;
 use std::thread;
 
 enum Message {
-   NewJob(Job),
-   Terminate,
+    NewJob(Job),
+    Terminate,
 }
 
 pub struct ThreadPool {
@@ -39,9 +39,9 @@ impl ThreadPool {
 }
 
 impl Drop for ThreadPool {
-     fn drop(&mut self) {
+    fn drop(&mut self) {
         for _ in &self.workers {
-             self.sender.send(Message::Terminate).unwrap();
+            self.sender.send(Message::Terminate).unwrap();
         }
         for worker in &mut self.workers {
             println!("Shutting down worker {}", worker.id);
@@ -49,7 +49,7 @@ impl Drop for ThreadPool {
                 thread.join().unwrap();
             }
         }
-     }
+    }
 }
 
 struct Worker {
@@ -62,16 +62,19 @@ impl Worker {
         let thread = thread::spawn(move || loop {
             let message = receiver.lock().unwrap().recv().unwrap();
             match message {
-                 Message::NewJob(job) => {
-                      println!("Worker {} got a job; executing.", id);
-                       job();
-                 }
-                 Message::Terminate => {
-                       println!("Worker {} terminates", id);
-                       break;
-                 }
+                Message::NewJob(job) => {
+                    println!("Worker {} got a job; executing.", id);
+                    job();
+                }
+                Message::Terminate => {
+                    println!("Worker {} terminates", id);
+                    break;
+                }
             }
         });
-        Worker { id, thread: Some(thread), }
+        Worker {
+            id,
+            thread: Some(thread),
+        }
     }
 }
