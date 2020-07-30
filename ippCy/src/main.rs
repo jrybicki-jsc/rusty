@@ -6,6 +6,7 @@ fn main() {
    
 
     let mut sp = ciphertext.split(" ").collect::<Vec<&str>>();
+    let mut matrix:Vec<u8> = Vec::new();
 
     let keys =  "-1 2 -3 4";
     for key in keys.split(" ") {
@@ -18,7 +19,25 @@ fn main() {
           };
           for el in a {
                print!("{}\t",el);
+               matrix.push(el.parse().unwrap());
            }
           println!("");
     }
+
+   //decode matrix:
+   println!("Decoded message is:");
+   for a in (0..rows).rev() {
+      for b in 0..cols {
+          //println!("m[{}, {}]={}", a, b, get_ij(a, b, &matrix));
+         print!("{} ", get_ij(a, b, &matrix));
+         
+      }
+   }
+}
+
+fn get_ij(i: usize, j: usize, matrix: &Vec<u8>) -> u8{
+   let cols = 4;
+   let rows = 5;
+
+   matrix[i + j*rows]
 }
