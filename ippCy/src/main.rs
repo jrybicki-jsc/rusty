@@ -34,29 +34,30 @@ fn route_ci() {
 
 fn main() {
     //railfence:
-    let plaintext = String::from("Let us cross over the river and rest under the shade of the trees");
+    let plaintext =
+        String::from("Let us cross over the river and rest under the shade of the trees");
     //capitalize and remove spac
-    let plaintext:String = plaintext.to_uppercase().split_whitespace().collect();
+    let plaintext: String = plaintext.to_uppercase().split_whitespace().collect();
 
     let mut upper: Vec<char> = Vec::new();
     let mut lower: Vec<char> = Vec::new();
 
-    for (p, o)  in plaintext.chars().enumerate() {
+    for (p, o) in plaintext.chars().enumerate() {
         if p % 2 == 0 {
-           upper.push(o);
+            upper.push(o);
         } else {
-           lower.push(o);
+            lower.push(o);
         }
-        if (p> 0) && (p % 8 == 0) {
-           upper.push(' ');
-           lower.push(' ');
+        if (p > 0) && (p % 8 == 0) {
+            upper.push(' ');
+            lower.push(' ');
         }
     }
 
-    let mut upper =  upper.iter().collect::<String>();
+    let mut upper = upper.iter().collect::<String>();
     let mut lower = lower.iter().collect::<String>();
-  
-    print!("{}\n{}", upper, lower); 
+
+    print!("{}\n{}", upper, lower);
 }
 
 fn get_ij(i: usize, j: usize, matrix: &Vec<u8>) -> u8 {
