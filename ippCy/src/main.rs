@@ -32,10 +32,8 @@ fn route_ci() {
     }
 }
 
-fn main() {
-    //railfence:
-    let plaintext =
-        String::from("Let us cross over the river and rest under the shade of the trees");
+fn encode(plaintext: String) -> String {
+
     //capitalize and remove spac
     let plaintext: String = plaintext.to_uppercase().split_whitespace().collect();
 
@@ -49,15 +47,32 @@ fn main() {
             lower.push(o);
         }
         if (p > 0) && (p % 8 == 0) {
-            upper.push(' ');
-            lower.push(' ');
+            //upper.push(' ');
+            //lower.push(' ');
         }
     }
 
     let mut upper = upper.iter().collect::<String>();
     let mut lower = lower.iter().collect::<String>();
+     
+    format!("{}{}", upper, lower)
+}
 
-    print!("{}\n{}", upper, lower);
+fn main() {
+    //railfence:
+    let plaintext =
+        String::from("Let us cross over the river and rest under the shade of the trees");
+
+    let mut enc = encode(plaintext);
+    println!("Encode\n{}", enc);
+
+    let lower = enc.split_off(enc.len()/2);
+
+    let myi = enc.chars().zip(lower.chars());
+    for (a,b) in myi {
+       print!("{}{}", a, b);
+    }
+   
 }
 
 fn get_ij(i: usize, j: usize, matrix: &Vec<u8>) -> u8 {
