@@ -36,25 +36,10 @@ fn encode(plaintext: String) -> String {
     //capitalize and remove spac
     let plaintext: String = plaintext.to_uppercase().split_whitespace().collect();
 
-    let mut upper: Vec<char> = Vec::new();
-    let mut lower: Vec<char> = Vec::new();
+    let a1 = plaintext.chars().enumerate().filter(|(a, b)| a%2 == 0).map(|(a,b)| b).collect::<String>();
+    let a2 = plaintext.chars().enumerate().filter(|(a, b)| a%2 == 1).map(|(a,b)| b).collect::<String>();
 
-    for (p, o) in plaintext.chars().enumerate() {
-        if p % 2 == 0 {
-            upper.push(o);
-        } else {
-            lower.push(o);
-        }
-        if (p > 0) && (p % 8 == 0) {
-            //upper.push(' ');
-            //lower.push(' ');
-        }
-    }
-
-    let mut upper = upper.iter().collect::<String>();
-    let mut lower = lower.iter().collect::<String>();
-
-    format!("{}{}", upper, lower)
+    format!("{}{}", a1, a2)
 }
 
 fn decode(mut enc: String) -> String {
@@ -81,6 +66,7 @@ fn main() {
 
     let dec = decode(enc);
     println!("Decode\n{}", dec);
+
 }
 
 fn get_ij(i: usize, j: usize, matrix: &Vec<u8>) -> u8 {
