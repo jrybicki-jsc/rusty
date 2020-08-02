@@ -58,6 +58,21 @@ fn encode(plaintext: String) -> String {
     format!("{}{}", upper, lower)
 }
 
+fn decode(mut enc: String) -> String {
+    let lower = enc.split_off(enc.len()/2);
+
+    let myi = enc.chars().zip(lower.chars());
+    let mut ret = String::new();
+
+    for (a,b) in myi {
+        ret.push(a);
+        ret.push(b); 
+    }
+
+    ret
+
+}
+
 fn main() {
     //railfence:
     let plaintext =
@@ -65,14 +80,12 @@ fn main() {
 
     let mut enc = encode(plaintext);
     println!("Encode\n{}", enc);
+    
+    let dec = decode(enc);
+    println!("Decode\n{}", dec);
 
-    let lower = enc.split_off(enc.len()/2);
 
-    let myi = enc.chars().zip(lower.chars());
-    for (a,b) in myi {
-       print!("{}{}", a, b);
-    }
-   
+  
 }
 
 fn get_ij(i: usize, j: usize, matrix: &Vec<u8>) -> u8 {
