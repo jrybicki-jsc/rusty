@@ -33,7 +33,6 @@ fn route_ci() {
 }
 
 fn encode(plaintext: String) -> String {
-
     //capitalize and remove spac
     let plaintext: String = plaintext.to_uppercase().split_whitespace().collect();
 
@@ -54,23 +53,22 @@ fn encode(plaintext: String) -> String {
 
     let mut upper = upper.iter().collect::<String>();
     let mut lower = lower.iter().collect::<String>();
-     
+
     format!("{}{}", upper, lower)
 }
 
 fn decode(mut enc: String) -> String {
-    let lower = enc.split_off(enc.len()/2);
+    let lower = enc.split_off(enc.len() / 2);
 
     let myi = enc.chars().zip(lower.chars());
     let mut ret = String::new();
 
-    for (a,b) in myi {
+    for (a, b) in myi {
         ret.push(a);
-        ret.push(b); 
+        ret.push(b);
     }
 
     ret
-
 }
 
 fn main() {
@@ -80,12 +78,9 @@ fn main() {
 
     let mut enc = encode(plaintext);
     println!("Encode\n{}", enc);
-    
+
     let dec = decode(enc);
     println!("Decode\n{}", dec);
-
-
-  
 }
 
 fn get_ij(i: usize, j: usize, matrix: &Vec<u8>) -> u8 {
