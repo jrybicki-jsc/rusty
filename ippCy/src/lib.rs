@@ -47,7 +47,7 @@ fn decode(mut enc: String) -> String {
 }
 
 fn railfence() {
-   //railfence:
+    //railfence:
     let plaintext =
         String::from("Let us cross over the river and rest under the shade of the trees");
 
@@ -56,18 +56,27 @@ fn railfence() {
 
     let dec = decode(enc);
     println!("Decode\n{}", dec);
-
 }
 
 fn encode(plaintext: String) -> String {
     //capitalize and remove spac
     let plaintext: String = plaintext.to_uppercase().split_whitespace().collect();
 
-    let a1 = plaintext.chars().enumerate().filter(|(a, b)| a%2 == 0).map(|(a,b)| b).collect::<String>();
-    let a2 = plaintext.chars().enumerate().filter(|(a, b)| a%2 == 1).map(|(a,b)| b).collect::<String>();
+    let a1 = plaintext
+        .chars()
+        .enumerate()
+        .filter(|(a, b)| a % 2 == 0)
+        .map(|(a, b)| b)
+        .collect::<String>();
+    let a2 = plaintext
+        .chars()
+        .enumerate()
+        .filter(|(a, b)| a % 2 == 1)
+        .map(|(a, b)| b)
+        .collect::<String>();
 
     format!("{}{}", a1, a2)
-} 
+}
 
 fn get_ij(i: usize, j: usize, matrix: &Vec<u8>) -> u8 {
     let cols = 4;
