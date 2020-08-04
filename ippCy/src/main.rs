@@ -26,10 +26,41 @@ fn reveal(contents: &str, lookahead: u8) -> String {
     ret
 }
 
+fn read_dic() -> String {
+    let filename = String::from("./dictionary.txt");
+    let contents = fs::read_to_string(filename).expect("Failed to open dictionary");
+
+    contents
+}
+
+fn make_list(message: &str, pos:usize) -> Vec<String> {
+   let mut ret:Vec<String> = Vec::new();
+   let words = read_dic();
+
+   for c in message.chars() {
+       if !c.is_alphanumeric() {
+          continue;
+       }
+
+       for word in words.lines() {
+             if word.to_lowercase().find(c)==Some(pos) {
+                ret.push(word.to_string());
+                break;
+             }
+       }
+   }
+
+   ret
+}
+
 fn main() {
     let filename = String::from("./message.txt");
-    let contents = fs::read_to_string(filename).expect("Failed to open dictionary");
+    let contents = fs::read_to_string(filename).expect("Failed to open message file");
 
     let m = reveal(&contents, 3);
     println!("\n{}", m);
+
+    let msg = String::from("some message");
+    let lst = make_list(&msg, 3);
+    println!("{:?}", lst);
 }
