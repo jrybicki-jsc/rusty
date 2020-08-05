@@ -1,4 +1,6 @@
 use std::fs;
+use rand::Rng;
+use rand::prelude::*;
 
 fn reveal(contents: &str, lookahead: u8) -> String {
     let mut counter = 0;
@@ -35,14 +37,22 @@ fn read_dic() -> String {
 
 fn make_list(message: &str, pos:usize) -> Vec<String> {
    let mut ret:Vec<String> = Vec::new();
-   let words = read_dic();
+   let dict = read_dic();
+   let mut words:Vec<&str> = dict.lines().collect();
+   let mut rng = rand::thread_rng();
 
    for c in message.chars() {
        if !c.is_alphanumeric() {
           continue;
        }
-
-       for word in words.lines() {
+      let len  = rng.gen_range(7, 12);
+      
+      rng.shuffle(&mut words);
+       for word in words.iter() {
+             if word.len() != len {
+                  continue;
+             }
+             
              if word.to_lowercase().find(c)==Some(pos) {
                 ret.push(word.to_string());
                 break;
@@ -62,5 +72,7 @@ fn main() {
 
     let msg = String::from("some message");
     let lst = make_list(&msg, 3);
-    println!("{:?}", lst);
+    let msg = lst.join("\n");
+    println!("{}", msg);
+
 }
