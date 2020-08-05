@@ -1,6 +1,6 @@
-use std::fs;
-use rand::Rng;
 use rand::prelude::*;
+use rand::Rng;
+use std::fs;
 
 fn reveal(contents: &str, lookahead: u8) -> String {
     let mut counter = 0;
@@ -35,32 +35,32 @@ fn read_dic() -> String {
     contents
 }
 
-fn make_list(message: &str, pos:usize) -> Vec<String> {
-   let mut ret:Vec<String> = Vec::new();
-   let dict = read_dic();
-   let mut words:Vec<&str> = dict.lines().collect();
-   let mut rng = rand::thread_rng();
+fn make_list(message: &str, pos: usize) -> Vec<String> {
+    let mut ret: Vec<String> = Vec::new();
+    let dict = read_dic();
+    let mut words: Vec<&str> = dict.lines().collect();
+    let mut rng = rand::thread_rng();
 
-   for c in message.chars() {
-       if !c.is_alphanumeric() {
-          continue;
-       }
-      let len  = rng.gen_range(7, 12);
-      
-      rng.shuffle(&mut words);
-       for word in words.iter() {
-             if word.len() != len {
-                  continue;
-             }
-             
-             if word.to_lowercase().find(c)==Some(pos) {
+    for c in message.chars() {
+        if !c.is_alphanumeric() {
+            continue;
+        }
+        let len = rng.gen_range(7, 12);
+
+        rng.shuffle(&mut words);
+        for word in words.iter() {
+            if word.len() != len {
+                continue;
+            }
+
+            if word.to_lowercase().find(c) == Some(pos) {
                 ret.push(word.to_string());
                 break;
-             }
-       }
-   }
+            }
+        }
+    }
 
-   ret
+    ret
 }
 
 fn main() {
@@ -74,5 +74,4 @@ fn main() {
     let lst = make_list(&msg, 3);
     let msg = lst.join("\n");
     println!("{}", msg);
-
 }
