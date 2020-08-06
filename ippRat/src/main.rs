@@ -1,4 +1,6 @@
 use std::fmt;
+use rand_distr::{Triangular, Distribution};
+use rand;
 
 enum Sex {
     Male,
@@ -6,13 +8,13 @@ enum Sex {
 }
 
 pub struct Rat {
-    weight: u16,
+    weight: f64,
     sex: Sex,
 }
 
 impl fmt::Display for Rat {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({}, {})", self.weight, self.sex)
+        write!(f, "({:2.3}, {})", self.weight, self.sex)
     }
 }
 
@@ -25,11 +27,26 @@ impl fmt::Display for Sex {
     }
 }
 
-fn main() {
-    let r = Rat {
-        weight: 19,
-        sex: Sex::Male,
-    };
+fn get_sample(num_rats: usize, min_weight: f64, max_weight: f64, mode_weight: f64) -> Vec<Rat> {
 
-    println!("Got rat {}", r);
+   let mut ret:Vec<Rat> = Vec::new();
+   let d = Triangular::new(min_weight,max_weight, mode_weight).unwrap();
+   let mut rng = rand::thread_rng();
+
+   for _ in 0..num_rats {
+       let weight = d.sample(&mut rng);
+       let mut sex = Sex::Male;
+       if  rand::random() {
+           sex = Sex::Female;
+       }
+       ret.push(Rat{weight, sex});
+   }
+   ret
+}
+
+fn main() {
+
+    let rats = get_sample(10, 12.0, 24.0, 18.0);
+    println!("Got rat {}", rats[0]);
+
 }
