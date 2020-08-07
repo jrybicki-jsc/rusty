@@ -2,6 +2,8 @@ use std::fmt;
 use rand_distr::{Triangular, Distribution};
 use rand;
 
+
+#[derive(PartialEq)]
 enum Sex {
     Male,
     Female,
@@ -44,9 +46,35 @@ fn get_sample(num_rats: usize, min_weight: f64, max_weight: f64, mode_weight: f6
    ret
 }
 
+
+fn average(rats: &Vec<Rat>, sex: Option<Sex>) -> f64 {
+
+  let mut sum = 0.0;
+  let mut count = rats.len() as f64;
+  match sex {
+      Some(s) => {
+               count =  rats.iter().filter(|r| r.sex==s).count() as f64;
+               sum = rats.iter().filter(|r| r.sex == s).map(|r| r.weight).sum::<f64>();
+      }, 
+      _ => sum = rats.iter().map(|r| r.weight).sum::<f64>(),
+  };
+
+  sum / count
+}
+
+fn get_fitness(rats: &Vec<Rat>, goal: f64) -> f64{
+   let  avg = average(rats, None);
+   
+    avg/goal
+}
+
 fn main() {
 
     let rats = get_sample(10, 12.0, 24.0, 18.0);
     println!("Got rat {}", rats[0]);
+
+    println!("Avg. male weight {}", average(&rats, Some(Sex::Male)));
+    println!("Avg. pop. weight {}", average(&rats, None));
+    println!("Fitness          {}", get_fitness(&rats, 18.0)); 
 
 }
