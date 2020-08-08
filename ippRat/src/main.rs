@@ -68,13 +68,59 @@ fn get_fitness(rats: &Vec<Rat>, goal: f64) -> f64{
     avg/goal
 }
 
+fn sort(rats: &mut Vec<Rat>) {
+    rats.sort_by(|a, b| b.weight.partial_cmp(&a.weight).unwrap());
+
+}
+
+fn select(rats: &mut Vec<Rat>, to_retain: usize) -> Vec<&Rat> {
+   sort(rats);
+   let mut ret: Vec<&Rat>  = Vec::new();
+   let mut males = 0;
+   let mut females = 0;
+
+   for r in rats.iter() {
+       match r.sex  {
+           Sex::Male => {
+               if males < to_retain / 2 {
+                  males +=1;
+                  ret.push(r);
+               }
+           }
+           _ => {
+              if females < to_retain / 2 {
+                 females +=1;
+                 ret.push(r);
+              }
+           }
+       };
+
+      if ret.len() >= to_retain {
+         break;
+      }
+   }
+
+  ret    
+}
+
+
+
 fn main() {
 
-    let rats = get_sample(10, 12.0, 24.0, 18.0);
+    let mut rats = get_sample(10, 12.0, 24.0, 18.0);
     println!("Got rat {}", rats[0]);
 
     println!("Avg. male weight {}", average(&rats, Some(Sex::Male)));
     println!("Avg. pop. weight {}", average(&rats, None));
     println!("Fitness          {}", get_fitness(&rats, 18.0)); 
 
+    let tops = select(&mut rats, 6);
+    for r in tops {
+         println!("{}", r);
+    }
+
+    println!("");
+    for r in rats {
+       println!("{}", r);
+    }
 }
