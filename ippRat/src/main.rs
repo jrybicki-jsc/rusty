@@ -1,6 +1,7 @@
-use rand;
+use rand::{thread_rng, Rng};
 use rand_distr::{Distribution, Triangular};
 use std::fmt;
+use rand::seq::SliceRandom;
 
 #[derive(PartialEq)]
 enum Sex {
@@ -72,34 +73,55 @@ fn sort(rats: &mut Vec<Rat>) {
     rats.sort_by(|a, b| b.weight.partial_cmp(&a.weight).unwrap());
 }
 
-fn select(rats: &mut Vec<Rat>, to_retain: usize) -> Vec<&Rat> {
+fn select(rats: &mut Vec<Rat>, to_retain: usize) -> (Vec<&Rat>, Vec<&Rat>) {
     sort(rats);
-    let mut ret: Vec<&Rat> = Vec::new();
-    let mut males = 0;
-    let mut females = 0;
+    let mut males: Vec<&Rat> = Vec::new();
+    let mut females: Vec<&Rat> = Vec::new();
 
     for r in rats.iter() {
         match r.sex {
             Sex::Male => {
-                if males < to_retain / 2 {
-                    males += 1;
-                    ret.push(r);
+                if males.len() < to_retain / 2 {
+                    males.push(r);
                 }
             }
             _ => {
-                if females < to_retain / 2 {
-                    females += 1;
-                    ret.push(r);
+                if females.len() < to_retain / 2 {
+                    females.push(r);
                 }
             }
         };
 
-        if ret.len() >= to_retain {
+        if (males.len() + females.len()) >= to_retain {
             break;
         }
     }
 
-    ret
+    ( males,  females)
+}
+
+fn breed(males: &mut Vec<&Rat>, females: &mut Vec<&Rat>, litter_size: usize) {
+   let mut rng = thread_rng();
+
+   males.shuffle(&mut rng);
+   females.shuffle(&mut rng);
+   let mut children: Vec<Rat> = Vec::new();
+   
+   for (m, f) in males.iter().zip(females.iter()) {
+       println!("Breeding {} with {}", m, f);
+       for _ in 0..litter_size {
+           let weight = rng.gen_range(f.weight, m.weight);;
+           let mut sex = Sex::Male;
+           if rand::random() {
+              sex = Sex::Female;
+           }
+           let child = Rat{weight, sex};
+          children.push(child);
+
+       }
+       
+   }
+     
 }
 
 fn main() {
@@ -110,13 +132,9 @@ fn main() {
     println!("Avg. pop. weight {}", average(&rats, None));
     println!("Fitness          {}", get_fitness(&rats, 18.0));
 
-    let tops = select(&mut rats, 6);
-    for r in tops {
-        println!("{}", r);
-    }
+    let (mut males, mut females) = select(&mut rats, 6);
+    println!("Got {} males and {} females", males.len(), females.len());
 
-    println!("");
-    for r in rats {
-        println!("{}", r);
-    }
+    breed(&mut males, &mut females, 5);  
+
 }
