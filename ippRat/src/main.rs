@@ -100,7 +100,7 @@ fn select(rats: &mut Vec<Rat>, to_retain: usize) -> (Vec<&Rat>, Vec<&Rat>) {
     ( males,  females)
 }
 
-fn breed(males: &mut Vec<&Rat>, females: &mut Vec<&Rat>, litter_size: usize) {
+fn breed(males: &mut Vec<&Rat>, females: &mut Vec<&Rat>, litter_size: usize) -> Vec<Rat> {
    let mut rng = thread_rng();
 
    males.shuffle(&mut rng);
@@ -110,7 +110,14 @@ fn breed(males: &mut Vec<&Rat>, females: &mut Vec<&Rat>, litter_size: usize) {
    for (m, f) in males.iter().zip(females.iter()) {
        println!("Breeding {} with {}", m, f);
        for _ in 0..litter_size {
-           let weight = rng.gen_range(f.weight, m.weight);;
+           
+           let weight;
+           if f.weight < m.weight  {
+              weight= rng.gen_range(f.weight, m.weight);
+           } else { 
+               weight = rng.gen_range(m.weight, f.weight);
+           }
+
            let mut sex = Sex::Male;
            if rand::random() {
               sex = Sex::Female;
@@ -121,10 +128,30 @@ fn breed(males: &mut Vec<&Rat>, females: &mut Vec<&Rat>, litter_size: usize) {
        }
        
    }
-     
+   children
+}
+
+fn mutate(children: &mut Vec<Rat>, mutate_ods: f64, mutate_min: f64, mutate_max: f64) {
+   let mut rng = thread_rng();
+
+   for c in children {
+        if rng.gen::<f64>() < mutate_ods {
+           print!("New mutation of {}", c);
+           let new_weight = c.weight * rng.gen_range(mutate_min, mutate_max);
+           c.weight = new_weight;
+           println!(" changed into {}", c);
+        }
+   }
+
 }
 
 fn main() {
+    let sample_size = 10;
+    let litter_size = 8;
+    let mutate_odds = 0.01;
+    let mutate_min = 0.5;
+    let mutate_max = 1.2;
+
     let mut rats = get_sample(10, 12.0, 24.0, 18.0);
     println!("Got rat {}", rats[0]);
 
@@ -135,6 +162,7 @@ fn main() {
     let (mut males, mut females) = select(&mut rats, 6);
     println!("Got {} males and {} females", males.len(), females.len());
 
-    breed(&mut males, &mut females, 5);  
-
+    let mut children = breed(&mut males, &mut females, litter_size);
+  
+    mutate(&mut children, mutate_odds, mutate_min, mutate_max);
 }
