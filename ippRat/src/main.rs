@@ -1,14 +1,15 @@
+use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
 use rand_distr::{Distribution, Triangular};
 use std::fmt;
-use rand::seq::SliceRandom;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Copy, Clone)]
 enum Sex {
     Male,
     Female,
 }
 
+#[derive(PartialEq, Copy, Clone)]
 pub struct Rat {
     weight: f64,
     sex: Sex,
@@ -73,21 +74,21 @@ fn sort(rats: &mut Vec<Rat>) {
     rats.sort_by(|a, b| b.weight.partial_cmp(&a.weight).unwrap());
 }
 
-fn select(rats: &mut Vec<Rat>, to_retain: usize) -> (Vec<&Rat>, Vec<&Rat>) {
+fn select(rats: &mut Vec<Rat>, to_retain: usize) -> (Vec<Rat>, Vec<Rat>) {
     sort(rats);
-    let mut males: Vec<&Rat> = Vec::new();
-    let mut females: Vec<&Rat> = Vec::new();
+    let mut males: Vec<Rat> = Vec::new();
+    let mut females: Vec<Rat> = Vec::new();
 
     for r in rats.iter() {
         match r.sex {
             Sex::Male => {
                 if males.len() < to_retain / 2 {
-                    males.push(r);
+                    males.push(*r);
                 }
             }
             _ => {
                 if females.len() < to_retain / 2 {
-                    females.push(r);
+                    females.push(*r);
                 }
             }
         };
@@ -97,72 +98,83 @@ fn select(rats: &mut Vec<Rat>, to_retain: usize) -> (Vec<&Rat>, Vec<&Rat>) {
         }
     }
 
-    ( males,  females)
+    (males, females)
 }
 
-fn breed(males: &mut Vec<&Rat>, females: &mut Vec<&Rat>, litter_size: usize) -> Vec<Rat> {
-   let mut rng = thread_rng();
+fn breed(males: &mut Vec<Rat>, females: &mut Vec<Rat>, litter_size: usize) -> Vec<Rat> {
+    let mut rng = thread_rng();
 
-   males.shuffle(&mut rng);
-   females.shuffle(&mut rng);
-   let mut children: Vec<Rat> = Vec::new();
-   
-   for (m, f) in males.iter().zip(females.iter()) {
-       println!("Breeding {} with {}", m, f);
-       for _ in 0..litter_size {
-           
-           let weight;
-           if f.weight < m.weight  {
-              weight= rng.gen_range(f.weight, m.weight);
-           } else { 
-               weight = rng.gen_range(m.weight, f.weight);
-           }
+    males.shuffle(&mut rng);
+    females.shuffle(&mut rng);
+    let mut children: Vec<Rat> = Vec::new();
 
-           let mut sex = Sex::Male;
-           if rand::random() {
-              sex = Sex::Female;
-           }
-           let child = Rat{weight, sex};
-          children.push(child);
+    for (m, f) in males.iter().zip(females.iter()) {
+        for _ in 0..litter_size {
+            let weight;
+            if f.weight < m.weight {
+                weight = rng.gen_range(f.weight, m.weight);
+            } else {
+                weight = rng.gen_range(m.weight, f.weight);
+            }
 
-       }
-       
-   }
-   children
+            let mut sex = Sex::Male;
+            if rand::random() {
+                sex = Sex::Female;
+            }
+            let child = Rat { weight, sex };
+            children.push(child);
+        }
+    }
+    children
 }
 
 fn mutate(children: &mut Vec<Rat>, mutate_ods: f64, mutate_min: f64, mutate_max: f64) {
-   let mut rng = thread_rng();
+    let mut rng = thread_rng();
 
-   for c in children {
+    for c in children {
         if rng.gen::<f64>() < mutate_ods {
-           print!("New mutation of {}", c);
-           let new_weight = c.weight * rng.gen_range(mutate_min, mutate_max);
-           c.weight = new_weight;
-           println!(" changed into {}", c);
+            print!("New mutation of {}", c);
+            let new_weight = c.weight * rng.gen_range(mutate_min, mutate_max);
+            c.weight = new_weight;
+            println!(" changed into {}", c);
         }
-   }
-
+    }
 }
 
 fn main() {
-    let sample_size = 10;
     let litter_size = 8;
     let mutate_odds = 0.01;
     let mutate_min = 0.5;
     let mutate_max = 1.2;
+    let target_weight = 30.0;
+    let to_retain = 20;
+    let generation_limit = 500;
+    let mut generation = 0;
 
-    let mut rats = get_sample(10, 12.0, 24.0, 18.0);
-    println!("Got rat {}", rats[0]);
+    let mut rats = get_sample(to_retain, 12.0, 24.0, 18.0);
 
-    println!("Avg. male weight {}", average(&rats, Some(Sex::Male)));
-    println!("Avg. pop. weight {}", average(&rats, None));
-    println!("Fitness          {}", get_fitness(&rats, 18.0));
+    while generation < generation_limit {
+        println!("Population {}", generation);
+        println!("Avg. male weight {}", average(&rats, Some(Sex::Male)));
+        println!("Avg. pop. weight {}", average(&rats, None));
+        let fitnes = get_fitness(&rats, target_weight);
+        println!("Fitness          {}", fitnes);
+        if fitnes >= 1.0 {
+            break;
+        }
 
-    let (mut males, mut females) = select(&mut rats, 6);
-    println!("Got {} males and {} females", males.len(), females.len());
+        let (mut males, mut females) = select(&mut rats, to_retain);
+        println!("Got {} males and {} females", males.len(), females.len());
 
-    let mut children = breed(&mut males, &mut females, litter_size);
-  
-    mutate(&mut children, mutate_odds, mutate_min, mutate_max);
+        let mut children = breed(&mut males, &mut females, litter_size);
+        mutate(&mut children, mutate_odds, mutate_min, mutate_max);
+        rats.clear();
+        rats.append(&mut children);
+        for (m, f) in females.iter().zip(males.iter()) {
+             rats.push(*f);
+             rats.push(*m);
+        }
+      
+        generation+=1;
+    }
 }
