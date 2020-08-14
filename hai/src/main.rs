@@ -1,6 +1,6 @@
-use std::fs;
 use regex::Regex;
 use std::collections::HashMap;
+use std::fs;
 
 fn main() {
     let filename = String::from("./data/cmudict.dict");
@@ -13,11 +13,11 @@ fn main() {
     for word in contents.lines() {
         let split = word.split(" ").collect::<Vec<&str>>();
         if re.is_match(&split[0]) {
-           println!("Variant detected {}... skipping!", split[0]);
-           continue;
+            println!("Variant detected {}... skipping!", split[0]);
+            continue;
         }
-        mydict.insert(split[0], split.len()-1);
-    } 
-   
-   println!("Dict created {}", mydict.len()); 
+        mydict.insert(split[0], split.len() - 1);
+    }
+
+    println!("Dict created {}", mydict.len());
 }
