@@ -2,6 +2,27 @@ use regex::Regex;
 use std::collections::HashMap;
 use std::fs;
 
+fn count_syllables(sentence: &String, dictionary: &HashMap<&str, usize>) -> usize {
+    let mut ret: usize = 0;
+    let w = String::from("bla");
+
+    for word in sentence.split(" ") {
+        let mut w = word.replace(|c: char| !c.is_alphabetic(), "");
+        w.make_ascii_lowercase();
+
+        match dictionary.get(&w.as_str()) {
+            Some(&syl) => {
+                ret += syl;
+            }
+            _ => {
+                println!("Could not find {} in the dict", word);
+            }
+        };
+    }
+
+    ret
+}
+
 fn main() {
     let filename = String::from("./data/cmudict.dict");
     let contents = fs::read_to_string(filename).expect("Failed to open dictionary");
@@ -21,12 +42,14 @@ fn main() {
 
     println!("Dict created {}", mydict.len());
 
+    let sen = String::from("Some sentence is empty");
+    let s = count_syllables(&sen, &mydict);
+    println!("Syllables count: {}", s);
+
     let filename = String::from("./data/train.txt");
     let contents = fs::read_to_string(filename).expect("Failed to open haiku");
     println!("Got coropra: {}", contents.len());
 
-    let myword = String::from("someword,");
-    let w = myword.replace(|c: char| !c.is_alphabetic(), "");
     let mut haikudict = Vec::new();
 
     for word in contents.split(" ") {
