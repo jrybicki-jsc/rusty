@@ -66,7 +66,6 @@ fn check_missing(mydict: HashMap<String, usize>) {
     println!("Haiku dict: {}", haikudict.len());
 }
 
-
 fn main() {
     let mydict = read_cmu();
 
@@ -76,9 +75,7 @@ fn main() {
             .read_line(&mut sen)
             .expect("Failed to read line");
 
-        
-
         let s = count_syllables(&sen, &mydict);
         println!(">syllables {}", s);
-   }
+    }
 }
