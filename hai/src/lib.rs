@@ -2,7 +2,6 @@ use regex::Regex;
 use std::collections::HashMap;
 use std::fs;
 
-
 pub fn count_syllables(sentence: &String, dictionary: &HashMap<String, usize>) -> usize {
     let mut ret: usize = 0;
 
@@ -43,4 +42,3 @@ pub fn read_cmu(filename: String) -> HashMap<String, usize> {
     println!("Dict created {}", mydict.len());
     mydict
 }
-
