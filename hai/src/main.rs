@@ -11,6 +11,41 @@ fn clean_word(word: &str) -> String {
     w
 }
 
+fn alt_markov() {
+    let filename = String::from("./data/train.txt");
+    let contents = fs::read_to_string(filename).expect("Failed to open haiku");
+    println!("Got coropra: {}", contents.len());
+
+    let it1 = contents.split(" ");
+    let it2 = contents.split(" ").skip(1);
+    let it3 = contents.split(" ").skip(2);
+
+    let m:Vec<_> = it3.zip(it1.zip(it2)).collect();
+
+    println!("here:\n{:?}->{}", m[0].1, m[0].0);
+    println!("here:\n{:?}->{}", m[1].1, m[1].0);
+
+    let mut di: HashMap<(String, String), Vec<String>> = HashMap::new();
+
+    for e in m {
+         let mytu = ((e.1).0.to_string(), (e.1).1.to_string());
+
+         let v = di.entry(mytu).or_insert(Vec::<String>::new());
+         v.push(e.0.to_string());
+    }
+
+    println!("Markov created");
+    let mut c = 0;
+    for (k, v) in di {
+       println!("({},{}) -> {:?}", k.0, k.1, v);
+       c+=1;
+       if c == 10 {
+         break;
+       }
+    }
+
+}
+
 fn gen_markov() {
     let filename = String::from("./data/train.txt");
     let contents = fs::read_to_string(filename).expect("Failed to open haiku");
@@ -54,5 +89,6 @@ fn reader(mydict: HashMap<String, usize>) {
 
 fn main() {
     let mydict = read_cmu(String::from("./data/cmudict.dict"));
-    gen_markov();
+    //gen_markov();
+    alt_markov();
 }
