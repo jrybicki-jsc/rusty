@@ -15,17 +15,15 @@ fn clean_word(word: &str) -> String {
 
 fn alt_markov() -> HashMap<(String, String), Vec<String>>{
     let filename = String::from("./data/train.txt");
-    let contents = fs::read_to_string(filename).expect("Failed to open haiku");
-    println!("Got coropra: {}", contents.len());
+    let co = fs::read_to_string(filename).expect("Failed to open haiku");
+    println!("Got coropra: {}", co.len());
+    let contents = clean_word(&co);
 
     let it1 = contents.split(" ");
     let it2 = contents.split(" ").skip(1);
     let it3 = contents.split(" ").skip(2);
 
     let m:Vec<_> = it3.zip(it1.zip(it2)).collect();
-
-    println!("here:\n{:?}->{}", m[0].1, m[0].0);
-    println!("here:\n{:?}->{}", m[1].1, m[1].0);
 
     let mut di: HashMap<(String, String), Vec<String>> = HashMap::new();
 
@@ -38,33 +36,6 @@ fn alt_markov() -> HashMap<(String, String), Vec<String>>{
     di
 }
 
-fn gen_markov() -> HashMap<String, Vec<String>> {
-    let filename = String::from("./data/train.txt");
-    let contents = fs::read_to_string(filename).expect("Failed to open haiku");
-    println!("Got coropra: {}", contents.len());
-
-    let mut haikudict: HashMap<String, Vec<String>> = HashMap::new(); //Vec::new();
-    let mut prev = String::from("");
-
-    for word in contents.split(" ") {
-        let w = clean_word(word);
-        if w.is_empty() {
-            continue;
-        }
-
-        if prev.is_empty() {
-            prev = w.clone();
-            continue;
-        }
-
-        let mut v = haikudict
-            .entry(prev.clone())
-            .or_insert(Vec::<String>::new());
-        prev = w.clone();
-        v.push(w);
-    }
-    haikudict
-}
 
 
 fn gen_markov1() -> HashMap<String, Vec<String>> {
@@ -90,6 +61,8 @@ fn gen_markov1() -> HashMap<String, Vec<String>> {
     
 }
 
+
+
 fn reader(mydict: HashMap<String, usize>) {
     loop {
         let mut sen = String::new();
@@ -102,24 +75,42 @@ fn reader(mydict: HashMap<String, usize>) {
     }
 }
 
+fn random_word(m0: &HashMap<String, Vec<String>>, dict: &HashMap<String, usize>) -> String{
+  
+   let mut rng = rand::thread_rng();
+   loop {
+       let ind = rng.gen_range(0, m0.keys().len());
+       let word = m0.keys().skip(ind).next().unwrap();
+       let syls = count_syllables(&word, &dict);
+       if syls <= 4 {
+           return word.to_string();
+       }
+   }
+}
+
 fn main() {
     let m0 = gen_markov1();
 
     let mydict = read_cmu(String::from("./data/cmudict.dict"));
-    let m1 = gen_markov();
-    let m2 = alt_markov();
+    let m1 = alt_markov();
 
-    println!("len {}", m0.keys().len()); 
     let mut rng = rand::thread_rng();
-    let ind = rng.gen_range(0, m0.keys().len());
-  
-    let random_word = m0.keys().skip(ind).next().unwrap();
-    println!("Random word: {}", random_word);
-    let conts: Vec<String> = m0.get(random_word).unwrap().to_vec();
-    println!("Possible continuations: {:?}", conts);
+    let mut line = 0;
+ loop { 
+    let random_word = random_word(&m0, &mydict);
+    let conts: Vec<String> = m0.get(&random_word).unwrap().to_vec();
 
-    let cont = conts.choose(&mut rng).unwrap(); 
-    println!("Sentence: {} {}", random_word, cont);
-   
+    let cont = conts.choose(&mut rng).unwrap().to_string(); 
+
+    let a = (random_word, cont);
+    let m2conts:Vec<String> = m1.get(&a).unwrap().to_vec();
+    let c2 = m2conts.choose(&mut rng).unwrap();
+    println!(">>Sentence: {} {} {}", a.0, a.1, c2);
     
+
+    line+=1;
+    if line > 3 {
+          break;
+    }
+   }
 }
