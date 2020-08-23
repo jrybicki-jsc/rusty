@@ -1,5 +1,5 @@
 use rand::Rng;
-
+use std::collections::HashMap;
 
 const NUM_EQUIV_VOLUMES: usize = 1000;
 const MAX_CIVS: usize = 5000;
@@ -19,6 +19,15 @@ fn main() {
               let location = rng.gen_range(0, NUM_EQUIV_VOLUMES);
               locations.push(location);
          }
+
+        let mut counter:HashMap<usize, u16> = HashMap::new();
+        for l in locations {
+           let mut v = counter.entry(l).or_insert(0);
+           *v+=1;
+        }
+ 
+        let si= counter.iter().filter(|(l, c) | **c == 1).map(|(l,c)| l).count();
+        println!("Single civilizations: {}", si);
 
       }
 
