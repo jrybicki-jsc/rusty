@@ -49,7 +49,7 @@ fn main() -> std::io::Result<()> {
 
     let mut file = File::create("foo.txt")?;
     for (c, p) in cpv.iter().zip(probs.iter()) {
-       file.write_all(format!("{},{}", c, p).as_bytes())?;
+       file.write_all(format!("{},{}\n", c, p).as_bytes())?;
     }
 
     Ok(())
