@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <style>
+    .center {
+  margin-left: auto;
+  margin-right: auto;
+}
+   .door {
+        display:block;
+        width:100px;
+        height:200px;
+        font-size:24pt;
+        margin:25px auto;
+    }
+    </style>
+    </head>
+    <body>
+     <table class='center'>
+       <tr><td><button onclick="external.invoke('door1')" class='door'>Door1</button></td>
+           <td><button onclick="external.invoke('door2')" class='door'>Door2</button></td>
+           <td><button onclick="external.invoke('door3')" class='door'>Door3</button></td>
+      </tr>
+     </table>
+    </body>
+</html>
