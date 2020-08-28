@@ -22,5 +22,21 @@
            <td><button onclick="external.invoke('door3')" class='door'>Door3</button></td>
       </tr>
      </table>
+     <p id='status'>Status</p>
+     <button onclick="external.invoke('init')" >New Game!</button>
+     <button onclick="external.invoke('exit')" >Quit</button>
     </body>
+   <script type="text/javascript">
+        function myFunction(a1, a2) {
+            
+        }
+        function winner() {
+             document.getElementById('status').innerHTML = "Status <b>Winner!</b>";
+             external.invoke("winner set");
+        }
+        function looser() {
+             document.getElementById('status').innerHTML = "Status <b>Looser :<</b>";
+             external.invoke("winner set");
+        }
+   </script>
 </html>
