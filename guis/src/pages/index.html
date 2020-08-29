@@ -27,7 +27,10 @@
      <button onclick="external.invoke('exit')" >Quit</button>
     </body>
    <script type="text/javascript">
-        function myFunction(a1, a2) {
+        function clean(wins, loses) {
+              console.log(wins);
+              console.log(loses);
+             document.getElementById('status').innerHTML = "Status: wins:"+wins.toString()+" loses:"+loses.toString();
             
         }
         function winner() {
