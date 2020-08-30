@@ -15,7 +15,7 @@ fn main() {
         .invoke_handler(invoke_handler)
         .run()
         .unwrap();
-    println!("res: {:?}", res)
+    println!("res: {:?}", res);
 }
 
 fn gen_game(wins: usize, loses: usize) -> Game {
@@ -71,12 +71,14 @@ fn invoke_handler(wv: &mut WebView<std::vec::Vec<Game>>, arg: &str) -> WVResult 
                 } else if (door_nr == game.goat_door) {
                     let g = gen_game(game.wins, game.losses+1);
                     data.push(g);
+                    wv.eval(&format!("reveal_goat({})", door_nr));
                     wv.eval(&format!("looser()"));
                 } else {
                     println!("nothing...");
                     let g = gen_game(game.wins, game.losses);
                     data.push(g); 
                     wv.eval(&format!("clean({}, {})", game.wins, game.losses));
+                    //wv.eval(&format!("offer_switch()"));
                 }
             }
         }
