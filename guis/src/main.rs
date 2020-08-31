@@ -1,7 +1,7 @@
 extern crate web_view;
 
-use rand::Rng;
 use rand::seq::SliceRandom;
+use rand::Rng;
 use std::str::FromStr;
 use web_view::*;
 
@@ -20,33 +20,32 @@ fn main() {
 }
 
 fn gen_game(wins: usize, loses: usize) -> Game {
-   let mut rng = rand::thread_rng();
-   let mut doors =  vec![1, 2, 3];
-   doors.shuffle(&mut rng);
+    let mut rng = rand::thread_rng();
+    let mut doors = vec![1, 2, 3];
+    doors.shuffle(&mut rng);
 
-   let goat_door: usize = doors.pop().unwrap();
-   let price_door: usize = doors.pop().unwrap();
+    let goat_door: usize = doors.pop().unwrap();
+    let price_door: usize = doors.pop().unwrap();
 
-        let game = Game {
-            goat_door: goat_door,
-            price_door: price_door,
-            wins: wins,
-            losses: loses,
-        };
+    let game = Game {
+        goat_door: goat_door,
+        price_door: price_door,
+        wins: wins,
+        losses: loses,
+    };
 
-   game
+    game
 }
 
-fn select_door_to_rev(game: &Game, selected: usize) ->usize{
+fn select_door_to_rev(game: &Game, selected: usize) -> usize {
+    let mut doors = vec![1, 2, 3];
+    let mut rng = rand::thread_rng();
 
-   let mut doors =  vec![1, 2, 3];
-   let mut rng = rand::thread_rng();
+    doors.retain(|&x| x != game.price_door && x != selected);
 
-   doors.retain(|&x| x != game.price_door && x != selected);
- 
-   doors.shuffle(&mut rng);
-   println!("Remainng doors: {:?}", doors);
-   doors[0]
+    doors.shuffle(&mut rng);
+    println!("Remainng doors: {:?}", doors);
+    doors[0]
 }
 
 fn invoke_handler(wv: &mut WebView<std::vec::Vec<Game>>, arg: &str) -> WVResult {
@@ -64,9 +63,8 @@ fn invoke_handler(wv: &mut WebView<std::vec::Vec<Game>>, arg: &str) -> WVResult 
         println!("No game status found, generating new one!");
         let game = gen_game(0, 0);
         data.push(game);
-     }
+    }
 
-    
     if arg.starts_with("door") {
         let ss = &arg.to_string()[4..];
         let door_nr = usize::from_str(ss).unwrap();
@@ -79,10 +77,10 @@ fn invoke_handler(wv: &mut WebView<std::vec::Vec<Game>>, arg: &str) -> WVResult 
         let mut cmd = format!("reveal({})", reveal);
         if reveal == g.goat_door {
             cmd = format!("reveal_goat({})", reveal);
-         }
-   
+        }
+
         data.push(g);
-        
+
         wv.eval(&cmd);
     }
     Ok(())
