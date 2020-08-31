@@ -21,8 +21,11 @@ fn main() {
 
 fn gen_game(wins: usize, loses: usize) -> Game {
    let mut rng = rand::thread_rng();
-   let goat_door: usize = rng.gen_range(1, 4);
-        let price_door: usize = rng.gen_range(1, 4);
+   let mut doors =  vec![1, 2, 3];
+   doors.shuffle(&mut rng);
+
+   let goat_door: usize = doors.pop().unwrap();
+   let price_door: usize = doors.pop().unwrap();
 
         let game = Game {
             goat_door: goat_door,
