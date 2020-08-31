@@ -13,12 +13,27 @@
         font-size:24pt;
         margin:25px auto;
     }
+    .revealed {
+        display:block;
+        width:100px;
+        height:200px;
+        font-size:24pt;
+        margin:25px auto;
+        background: white;
+    }
+    .selected {
+        display:block;
+        width:100px;
+        height:200px;
+        font-size:24pt;
+        margin:25px auto;
+        background: gray;
+    }
     .goatrevealed {
          display: block;
          width: 100px;
          height: 200px;
-         background: url('image/goat.jpg') no-repeat;
-         background-size: 100px 200px;
+         background: white;
     }
     </style>
     </head>
@@ -26,7 +41,7 @@
      <table class='center'>
        <tr><td><button id='door1' onclick="external.invoke('door1')" class='door'>Door1</button></td>
            <td><button id='door2' onclick="external.invoke('door2')" class='door'>Door2</button></td>
-           <td><button id='door3' onclick="external.invoke('door3')" class='goatrevealed'>Door3</button></td>
+           <td><button id='door3' onclick="external.invoke('door3')" class='door'>Door3</button></td>
       </tr>
      </table>
      <img src='goat.jpg'>
@@ -50,8 +65,12 @@
              external.invoke("loser set");
         }
          function reveal_goat(door_nr) {
-            document.getElementById('door'+door_nr).className="goatrevealed";
+            document.getElementById('door'+door_nr).innerHTML = "GOAT";
              external.invoke("Goat revelaed");
+        }
+
+        function reveal(door_nr) {
+             document.getElementById('door'+door_nr).className="revealed";
         }
         function offer_switch() {
              if (confirm("Wanna switch doors?")) {

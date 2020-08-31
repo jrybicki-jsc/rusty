@@ -1,6 +1,7 @@
 extern crate web_view;
 
 use rand::Rng;
+use rand::seq::SliceRandom;
 use std::str::FromStr;
 use web_view::*;
 
@@ -33,6 +34,18 @@ fn gen_game(wins: usize, loses: usize) -> Game {
    game
 }
 
+fn select_door_to_rev(game: &Game, selected: usize) ->usize{
+
+   let mut doors =  vec![1, 2, 3];
+   let mut rng = rand::thread_rng();
+
+   doors.retain(|&x| x != game.price_door && x != selected);
+ 
+   doors.shuffle(&mut rng);
+   println!("Remainng doors: {:?}", doors);
+   doors[0]
+}
+
 fn invoke_handler(wv: &mut WebView<std::vec::Vec<Game>>, arg: &str) -> WVResult {
     println!("Arg is {}", arg);
 
@@ -57,31 +70,17 @@ fn invoke_handler(wv: &mut WebView<std::vec::Vec<Game>>, arg: &str) -> WVResult 
 
         println!("Door open {}", ss);
         let mut data = &mut *wv.user_data_mut();
-        let g = data.pop();
-        match g {
-            None => println!("You have to start the game first"),
-            Some(game) => {
-                println!("Current game is: {:?}", game);
-                println!("Price door is: {}", game.price_door);
-                if (door_nr == game.price_door) {
-                    println!("We have a winner!");
-                    let g = gen_game(game.wins+1, game.losses);
-                    data.push(g);
-                    wv.eval(&format!("winner()"));
-                } else if (door_nr == game.goat_door) {
-                    let g = gen_game(game.wins, game.losses+1);
-                    data.push(g);
-                    wv.eval(&format!("reveal_goat({})", door_nr));
-                    wv.eval(&format!("looser()"));
-                } else {
-                    println!("nothing...");
-                    let g = gen_game(game.wins, game.losses);
-                    data.push(g); 
-                    wv.eval(&format!("clean({}, {})", game.wins, game.losses));
-                    //wv.eval(&format!("offer_switch()"));
-                }
-            }
-        }
+        let g = data.pop().unwrap();
+        println!("Game {:?}", g);
+        let reveal = select_door_to_rev(&g, door_nr);
+        let mut cmd = format!("reveal({})", reveal);
+        if reveal == g.goat_door {
+            cmd = format!("reveal_goat({})", reveal);
+         }
+   
+        data.push(g);
+        
+        wv.eval(&cmd);
     }
     Ok(())
 }
