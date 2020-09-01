@@ -66,17 +66,18 @@
         }
          function reveal_goat(door_nr) {
             document.getElementById('door'+door_nr).innerHTML = "GOAT";
-             external.invoke("Goat revelaed");
+            offer_switch();
         }
 
         function reveal(door_nr) {
              document.getElementById('door'+door_nr).className="revealed";
+             offer_switch();
         }
         function offer_switch() {
              if (confirm("Wanna switch doors?")) {
-                 txt = "You pressed OK!";
+                 txt = "switch"
                  } else {
-                  txt = "You pressed Cancel!";
+                  txt = "noswitch"
                   }
                external.invoke(txt);
         }
