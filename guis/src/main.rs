@@ -35,6 +35,7 @@ fn invoke_handler(wv: &mut WebView<std::vec::Vec<Game>>, arg: &str) -> WVResult 
         println!("No game status found, generating new one!");
         let game = Game::new_random_game(0, 0);
         data.push(game);
+        wv.eval(&format!("clean(0, 0)"));
     }
 
     if arg.starts_with("door") {
@@ -46,10 +47,7 @@ fn invoke_handler(wv: &mut WebView<std::vec::Vec<Game>>, arg: &str) -> WVResult 
         let mut g = data.pop().unwrap();
         println!("Game {:?}", g);
         let reveal = select_door_to_rev(&g, door_nr);
-        let mut cmd = format!("reveal({})", reveal);
-        if reveal == g.goat_door {
-            cmd = format!("reveal_goat({})", reveal);
-        }
+        let mut cmd = format!("reveal({}, {}, {}, {}, 1)", reveal, door_nr, g.goat_door, 0);
        
         g.selected_door = door_nr;
         g.rev_door = reveal;
@@ -62,7 +60,9 @@ fn invoke_handler(wv: &mut WebView<std::vec::Vec<Game>>, arg: &str) -> WVResult 
         let mut g = data.pop().unwrap();
         
         if arg=="switch" {
-           g.selected_door = g.rev_door;
+           println!("Switching...{:?}", g);
+           g.switch();
+           println!("Switched...{:?}", g);
         }
 
         if g.is_winner() {
@@ -73,6 +73,10 @@ fn invoke_handler(wv: &mut WebView<std::vec::Vec<Game>>, arg: &str) -> WVResult 
              println!("no winner");
             
         }
+
+        let mut cmd = format!("reveal({}, {}, {}, {}, 0)", g.selected_door, g.selected_door, g.goat_door, g.price_door);
+
+         wv.eval(&cmd);
          
     }
     Ok(())
@@ -91,6 +95,7 @@ struct Game {
 trait Eval {
     fn is_winner(&self) -> bool; 
     fn is_goat(&self) -> bool;
+    fn switch(&mut self);
 }
 
 trait GameConstructor {
@@ -104,6 +109,12 @@ impl Eval for Game {
 
      fn is_goat(&self) -> bool {
           self.selected_door == self.goat_door
+     }
+
+     fn switch(&mut self) {
+        let mut doors = vec![1, 2, 3];
+        doors.retain(|&x| x != self.selected_door && x != self.rev_door);
+        self.selected_door = doors.pop().unwrap();
      }
 
  }

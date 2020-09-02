@@ -19,7 +19,8 @@
         height:200px;
         font-size:24pt;
         margin:25px auto;
-        background: white;
+        background: black;
+       color: white;
     }
     .selected {
         display:block;
@@ -54,6 +55,10 @@
               console.log(wins);
               console.log(loses);
              document.getElementById('status').innerHTML = "Status: wins:"+wins.toString()+" loses:"+loses.toString();
+             for (let i=1; i<4; i++) {
+                 document.getElementById('door'+i).innerHTML = "Door"+i;
+                 document.getElementById('door'+i).className= "door";
+             }
             
         }
         function winner() {
@@ -69,9 +74,22 @@
             offer_switch();
         }
 
-        function reveal(door_nr) {
+        function reveal(door_nr, selected, goat_door, price_door, sw) {
+              clean(0, 0);
+             document.getElementById('door'+selected).className="selected";
              document.getElementById('door'+door_nr).className="revealed";
-             offer_switch();
+             if (door_nr == goat_door) {
+                   document.getElementById('door'+door_nr).innerHTML = "GOAT";
+             }
+             if (price_door!=0) {
+                    if (door_nr == price_door) {
+                           document.getElementById('door'+price_door).innerHTML = "You\nWINNER!";
+                    } else
+                    document.getElementById('door'+price_door).innerHTML = "WINNER!";
+             }
+             if (sw==1) {
+                     setTimeout(()=> offer_switch(), 500);
+             }
         }
         function offer_switch() {
              if (confirm("Wanna switch doors?")) {
