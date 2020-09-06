@@ -29,13 +29,14 @@ fn main() {
     let max_years = 40;
     let most_likely_years = 25;
     let num_cases = 5000;
+    let withdrawal:f64 = 80000.0; 
 
     let d = Triangular::new(min_years as f64, max_years as f64, most_likely_years as f64).unwrap();
     let mut rng = rand::thread_rng();
 
     let mut case_count = 0;
     //while case_count < num_cases {
-    let mut investment = start_value;
+    //let mut investment = start_value;
     let start_year = rng.gen_range(0, bonds.len());
     let duration = d.sample(&mut rng) as usize;
     let end_year = start_year + duration;
@@ -47,6 +48,25 @@ fn main() {
         inflation.push(infl_rate[i % infl_rate.len()]);
     }
 
-    println!("{:?}", returns);
-    //}
+   let mut withdrawal_adj=0.0;
+   let mut investments = start_value as f64;
+
+    for (index, i) in returns.iter().enumerate() {
+        let curr_inf = inflation[index] as f64 / 100.0;
+        if index == 0 {
+            withdrawal_adj = withdrawal;
+        } else {
+             withdrawal_adj = withdrawal_adj * (1.0+curr_inf);
+        }
+
+        investments -= withdrawal_adj;
+        investments = investments * (1.0+i/100.0);
+        println!("{:.2} {:.2}",investments, withdrawal_adj);
+        if investments <= 0.0 {
+            println!("Bankrupt");
+            break;
+         }
+
+    }
+
 }
