@@ -28,6 +28,7 @@ class Particle(pg.sprite.Sprite):
         self.image = pg.Surface((4, 4))
         self.rect = self.image.get_rect()
         self.gas = random.choice(list(Particle.gases_colors.keys()))
+        #self.gas = 'CO2'
         self.color = Particle.gases_colors[self.gas]
         self.vel = Particle.VELOCITY_SO2 * Particle.vel_scalar[self.gas]
         self.x, self.y = Particle.VENT_LOCATION
@@ -37,7 +38,7 @@ class Particle(pg.sprite.Sprite):
         orient = random.uniform(60, 120)
         radians = math.radians(orient)
         self.dx = self.vel * math.cos(radians)
-        self.dy = self.vel * math.sin(radians)
+        self.dy = -self.vel * math.sin(radians)
 
     def update(self):
         self.dy += Particle.GRAVITY
