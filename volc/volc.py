@@ -28,7 +28,7 @@ class Particle(pg.sprite.Sprite):
         self.image = pg.Surface((4, 4))
         self.rect = self.image.get_rect()
         self.gas = random.choice(list(Particle.gases_colors.keys()))
-        #self.gas = 'CO2'
+        self.gas = 'H2S'
         self.color = Particle.gases_colors[self.gas]
         self.vel = Particle.VELOCITY_SO2 * Particle.vel_scalar[self.gas]
         self.x, self.y = Particle.VENT_LOCATION
@@ -43,6 +43,10 @@ class Particle(pg.sprite.Sprite):
     def update(self):
         self.dy += Particle.GRAVITY
         pg.draw.line(self.background, self.color, (self.x, self.y), (self.x + self.dx, self.y + self.dy))
+        r, g, b = self.color
+        if (max(self.color) < 255):
+            self.color = (r+5, g+5, b+5)
+
         self.x += self.dx
         self.y += self.dy
         if self.x < 0 or self.x > self.screen.get_width():
