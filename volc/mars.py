@@ -20,7 +20,8 @@ class Satellite(pg.sprite.Sprite):
        self.image.set_colorkey(BLACK)
       
        self.x = random.randrange(315, 425)
-       self.y = random.randrage(70, 180)
+       self.y = random.randrange(70, 180)
+
        self.dx = random.choice([-3, 3])
        self.dy = 0
        self.heading = 0
@@ -58,6 +59,202 @@ class Satellite(pg.sprite.Sprite):
        self.heading -= 90
        self.distance = math.hypot(dist_x, dist_y)
 
+   def rotate(self):
+       self.image = pg.transform.rotate(self.image_sat, self.heading)
+       self.rect = self.image.get_rect()
+
+   def path(self):
+       last_center = (self.x, self.y)
+       self.x += self.dx
+       self.y += self.dy
+       pg.draw.line(self.background, WHITE, last_center, (self.x, self.y))
 
 
- 
+   def update(self):
+       self.check_keys()
+       self.rotate()
+       self.path()
+       self.rect.center = (self.x, self.y)
+       if self.dx == 0 and self.y == 0:
+           self.image = self.image_crash
+           self.image.set_colorkey(BLACK)
+
+
+class Planet(pg.sprite.Sprite):
+     def __init__(self):
+        super().__init__()
+        self.image_mars = pg.image.load('res/mars.png').convert()
+        self.image_water = pg.image.load('res/mars_water.png').convert()
+        self.image_copy = pg.transform.scale(self.image_mars, (100, 100))
+        self.image_copy.set_colorkey(BLACK)
+        self.rect = self.image_copy.get_rect()
+        self.image = self.image_copy
+        self.mass = 2000
+        self.x = 400
+        self.y = 320
+        self.rect.center = (self.x, self.y)
+        self.angle = math.degrees(0)
+        self.rotate_by = math.degrees(0.01)
+
+     def rotate(self):
+        last_center = self.rect.center
+        self.image = pg.transform.rotate(self.image_copy, self.angle)
+        self.rect = self.image.get_rect()
+        self.rect.center = last_center
+        self.angle += self.rotate_by
+
+     def gravity(self, satellite):
+        G = 1.0
+        dist_x = self.x - satellite.x
+        dist_y = self.y - satellite.y
+        distance = math.hypot(dist_x, dist_y)
+        dist_x /= distance
+        dist_y /= distance
+        force = G* (satellite.mass * self.mass)/(math.pow(distance, 2))
+        satellite.dx += dist_x * force
+        satellite.dy += dist_y * force
+
+     def update(self):
+        self.rotate()
+
+
+
+def calc_eccentricity(dist_list):
+     ap = max(dist_list)
+     pe = min(dist_list)
+     ecc = (ap - pe) /(ap+pe)
+     return ecc
+
+def instruct_label(screen, text, color, x, y):
+     ifont = pg.font.SysFont(None, 25)
+     line_spacing = 22
+     for index, line in enumerate(text):
+         label = ifont.render(line, True, color, BLACK)
+         screen.blit(label, (x, y+ index* line_spacing))
+
+def box_label(screen, text, dims):
+     randout = pg.font.SysFont(None, 27)
+     base = pg.Rect(dims)
+     pg.draw.rect(screen, WHITE, base, 0)
+     label = randout.render(text, True, BLACK)
+     label_rect = label.get_rect(center=base.center)
+     screen.blit(label, label_rect)
+
+def mapping_on(planet):
+     last_center = planet.rect.center
+     planet.image_copy = pg.transform.scale(planet.image_water, (100, 100))
+     planet.image_copy.set_colorkey(BLACK)
+     planet.rect = planet.image_copy.get_rect()
+     planet.rect.center = last_center
+
+def mapping_off(planet):
+     planet.image_copy = pg.transform.scale(planet.image_mars, (100, 100))
+     planet.image_copy.set_colorkey(BLACK)
+
+def cast_shadow(screen):
+     shadow = pg.Surface((400, 100), flags=pg.SRCALPHA)
+     shadow.fill((0, 0, 0, 210))
+     screen.blit(shadow, (0, 270))
+
+
+def main():
+     pg.init()
+     os.environ['SDL_VIDEO_WINDOW_POS'] = '700, 100'
+     screen = pg.display.set_mode((800, 645), pg.FULLSCREEN)
+     pg.display.set_caption('Mars Orbiter')
+     background = pg.Surface(screen.get_size())
+
+     pg.mixer.init()
+     intro_text  = ['The Mars orbiter experienced an error', 'Use thrusters to correct to ciruclar', 'dont burn the propellant']
+     instruct_text1 = ['Altitude must be within 69-120', 'Eccenrecity must be < 0.05', 'Avoid atmosferre at 68']
+     instruct_text2 = ['Left Arrow = Decrease Dx', 'Right Arrow = Increase Dx', 'Up Arrow = Decrease Dy', 'Down Arrow = Increase Dy', 'Space Bar = Clear Path', 'Esc = Exit FUll scree']
+
+     planet = Planet()
+     planet_sprite = pg.sprite.Group(planet)
+     sat = Satellite(background)
+     sat_sprite = pg.sprite.Group(sat)
+
+     dist_list = []
+     ecc = 1
+     ecc_calc_interval = 5
+     
+     clock =pg.time.Clock()
+     fps = 30
+     tick_count  = 0 
+     mapping_enabled = False
+
+     running = True
+     while running:
+        tick_count+=1
+        dist_list.append(sat.distance)
+        
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+               running = False
+            elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+               screen = pg.display.set_mode((800, 645))
+            elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+               background.fill(BLACK)
+            elif event.type == pg.KEYUP:
+               sat.thrust.stop()
+               mapping_off(planet)
+            elif mapping_enabled:
+               if event.type == pg.KEYDOWN and event.key == pg.K_m:
+                  mapping_on(planet)
+
+            sat.locate(planet)
+            planet.gravity(sat)
+            
+            if tick_count %(ecc_calc_interval * fps) == 0:
+               ecc = calc_eccentricity(dist_list)
+               dist_list = []
+
+            screen.blit(background, (0, 0))
+
+            if sat.fuel <= 0:
+               instruct_label(screen, ['Fuel depleted!'], RED, 340, 195)
+               sat.fuel = 0
+               sat.dx = 2
+            elif sat.distance <= 68:
+               instruct_label(screen, ['Atomspheric entry!'], RED, 320, 195)
+               sat.dx = 0
+               sat.dy = 0
+
+            if ecc < 0.05 and sat.distance >= 69 and sat.distance <=120:
+               map_instruct = ['Press & hold M to map soil']
+               instruct_label(screen, map_instruct, LT_BLUE, 250, 175)
+               mapping_enabled = True
+            else:
+               mapping_enabled = False
+
+            planet_sprite.update()
+            planet_sprite.draw(screen)
+            sat_sprite.update()
+            sat_sprite.draw(screen)
+
+            if pg.time.get_ticks() <= 15000:
+               instruct_label(screen, intro_text, GREEN, 145, 100)
+            
+
+            box_label(screen, 'Dx', (70, 20, 75, 20))
+            box_label(screen, 'Dy', (150, 20, 80, 20))
+            box_label(screen, 'Altitude', (240, 20, 160, 20))
+            box_label(screen, 'Fuel', (410, 20, 160, 20)) 
+            box_label(screen, 'Eccentricity', (580, 20, 150, 20))
+            box_label(screen, '{:.1f}'.format(sat.dx), (70, 50, 75, 20)) 
+            box_label(screen, '{:.1f}'.format(sat.dy), (150, 50, 80, 20))
+            box_label(screen, '{:.1f}'.format(sat.distance), (240, 50, 160, 20))
+            box_label(screen, '{}'.format(sat.fuel), (410, 50, 160, 20))
+            box_label(screen, '{:.8f}'.format(ecc), (580, 50, 150, 20))
+
+            instruct_label(screen, instruct_text1, WHITE, 10, 575)
+            instruct_label(screen, instruct_text2, WHITE, 570, 510)
+
+            cast_shadow(screen)
+            pg.draw.rect(screen, WHITE, (1, 1, 798, 643), 1)
+            pg.display.flip()
+
+
+if __name__=="__main__":
+         main()
+
