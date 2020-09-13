@@ -16,9 +16,10 @@ fn get_data(fname: &str) -> Vec<usize> {
         let mut v = dc.entry(first).or_insert(0);
         *v+=1;
     }
+    let total_count = dc.values().sum::<usize>();
 
     for (digit, freq) in &dc {
-       println!("{} => {}", digit, freq);
+       println!("{} => {} ({:.2} %)", digit, freq, 100.0* (*freq as f64 / total_count as f64) );
     }
     ret
 }
