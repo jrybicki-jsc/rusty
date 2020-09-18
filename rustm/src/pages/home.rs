@@ -1,5 +1,6 @@
 use yew::prelude::*;
 
+#[derive(Clone)]
 struct Product {
     id: i32,
     name: String,
@@ -8,19 +9,30 @@ struct Product {
     price: f64,
 }
 
+struct CartProduct {
+    product: Product,
+    quantity: i32,
+}
+
 struct State {
     products: Vec<Product>,
+    cart: Vec<CartProduct>,
 }
 
 pub struct Home {
     state: State,
+    link: ComponentLink<Self>,
+}
+
+pub enum Msg {
+    AddToCart(i32),
 }
 
 impl Component for Home {
-    type Message = ();
+    type Message = Msg;
     type Properties = ();
 
-    fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
+    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         let products: Vec<Product> = vec![
             Product {
                 id: 1,
@@ -38,12 +50,39 @@ impl Component for Home {
             },
         ];
 
+        let cart = vec![];
+
         Self {
-            state: State { products },
+            state: State { products, cart },
+            link,
         }
     }
 
-    fn update(&mut self, _: Self::Message) -> ShouldRender {
+    fn update(&mut self, message: Self::Message) -> ShouldRender {
+        match message {
+            Msg::AddToCart(product_id) => {
+                let product = self
+                    .state
+                    .products
+                    .iter()
+                    .find(|p: &&Product| p.id == product_id)
+                    .unwrap();
+                let cart_product = self
+                    .state
+                    .cart
+                    .iter_mut()
+                    .find(|cp: &&mut CartProduct| cp.product.id == product_id);
+
+                if let Some(cp) = cart_product {
+                    cp.quantity += 1;
+                } else {
+                    self.state.cart.push(CartProduct {
+                        product: product.clone(),
+                        quantity: 1,
+                    })
+                }
+            }
+        }
         true
     }
 
@@ -57,15 +96,28 @@ impl Component for Home {
             .products
             .iter()
             .map(|product: &Product| {
+                let product_id = product.id;
                 html! {
                     <div>
                       <img src={&product.image}/>
                       <div>{&product.name}</div>
                       <div>{"$"}{&product.price}</div>
+                      <button onclick=self.link.callback(move |_| Msg::AddToCart(product_id))>{"Add to Cart"}</button>
                    </div>
                 }
             })
             .collect();
-        html! { <span>{products} </span> }
+        let cart_value = self
+            .state
+            .cart
+            .iter()
+            .fold(0.0, |acc, cp| acc + (cp.quantity as f64 * cp.product.price));
+
+        html! {
+              <div>
+                <span>{format!("Cart Value: {:.2}", cart_value)}</span>
+                <span>{products} </span>
+              </div>
+        }
     }
 }
