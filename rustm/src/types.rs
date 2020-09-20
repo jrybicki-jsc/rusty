@@ -1,17 +1,16 @@
-use serde::{Deserialize, Serialize}
-
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
-struct Product {
-    id: i32,
-    name: String,
-    description: String,
-    image: String,
-    price: f64,
+pub struct Product {
+    pub id: i32,
+    pub name: String,
+    pub description: String,
+    pub image: String,
+    pub price: f64,
 }
 
 #[derive(Clone, Debug)]
-struct CartProduct {
-    product: Product,
-    quantity: i32,
+pub struct CartProduct {
+    pub product: Product,
+    pub quantity: i32,
 }

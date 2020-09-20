@@ -6,11 +6,10 @@ use yew::services::fetch::FetchTask;
 
 use yew::prelude::*;
 
-
 struct State {
     products: Vec<Product>,
     cart: Vec<CartProduct>,
-    get_products_error: Option<Error>, 
+    get_products_error: Option<Error>,
     get_products_loaded: bool,
 }
 
@@ -54,14 +53,14 @@ impl Component for Home {
         link.send_message(Msg::GetProducts);
 
         Self {
-            state: State { 
-                  products, 
-                  cart, 
-                  get_products_error: None,
-                  get_products_loaded: false
-             },
-             link,
-             task: None,
+            state: State {
+                products,
+                cart,
+                get_products_error: None,
+                get_products_loaded: false,
+            },
+            link,
+            task: None,
         }
     }
 
@@ -69,27 +68,27 @@ impl Component for Home {
         match message {
             Msg::GetProducts => {
                 self.state.get_products_loaded = false;
-                let handler = 
+                let handler =
                     self.link
-                        .callback(move | response: api::FetchResponse<Vec<Product>>| {
-                                  let (_, Json(data)) = response.into_parts();
-                                   match data {
-                                        Ok(products) => Msg::getProductsSuccess(products),
-                                        Err(err) => Msg::GetProductsError(err),
-                                   }
-                          });
-                     self.task = Some(api::get_prodcuts(handler));
-                     true
+                        .callback(move |response: api::FetchResponse<Vec<Product>>| {
+                            let (_, Json(data)) = response.into_parts();
+                            match data {
+                                Ok(products) => Msg::GetProductsSuccess(products),
+                                Err(err) => Msg::GetProductsError(err),
+                            }
+                        });
+                self.task = Some(api::get_products(handler));
+                true
             }
             Msg::GetProductsSuccess(products) => {
-                 self.state.products = products;
-                 self.state.get_products_load = true;
-                 true
+                self.state.products = products;
+                self.state.get_products_loaded = true;
+                true
             }
             Msg::GetProductsError(error) => {
-                 self.state.get_products_error = Some(error);
-                 self.state.get_products_loaded = true;
-                 true
+                self.state.get_products_error = Some(error);
+                self.state.get_products_loaded = true;
+                true
             }
             Msg::AddToCart(product_id) => {
                 let product = self
@@ -110,12 +109,11 @@ impl Component for Home {
                     self.state.cart.push(CartProduct {
                         product: product.clone(),
                         quantity: 1,
-                    })
+                    });
                 }
                 true
             }
         }
-        true
     }
 
     fn change(&mut self, _: Self::Properties) -> ShouldRender {
@@ -139,25 +137,24 @@ impl Component for Home {
                 }
             })
             .collect();
+
         let cart_value = self
             .state
             .cart
             .iter()
             .fold(0.0, |acc, cp| acc + (cp.quantity as f64 * cp.product.price));
 
-        if !self.state.get_producss_loaded {
-           html! { <div> {"loading..."} </div>
+        if !self.state.get_products_loaded {
+            html! { <div> {"loading..."} </div> }
         } else if let Some(_) = self.state.get_products_error {
-           html! { <div> <span> {"Error loading products!" } </span> </div>
+            html! { <div> <span> {"Error loading products!" } </span> </div> }
         } else {
- 
-
-        html! {
-              <div>
-                <span>{format!("Cart Value: {:.2}", cart_value)}</span>
-                <span>{products} </span>
-              </div>
+            html! {
+                  <div>
+                    <span>{format!("Cart Value: {:.2}", cart_value)}</span>
+                    <span>{products} </span>
+                  </div>
+            }
         }
-       }
     }
 }
