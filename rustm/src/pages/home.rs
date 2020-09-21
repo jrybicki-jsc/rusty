@@ -1,4 +1,5 @@
 use crate::api;
+use crate::components::ProductCard;
 use crate::types::{CartProduct, Product};
 use anyhow::Error;
 use yew::format::Json;
@@ -31,23 +32,6 @@ impl Component for Home {
     type Properties = ();
 
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
-        let products: Vec<Product> = vec![
-            Product {
-                id: 1,
-                name: "Apple".to_string(),
-                description: "An apple a day".to_string(),
-                image: "/products/apple.jpg".to_string(),
-                price: 3.64,
-            },
-            Product {
-                id: 2,
-                name: "Bannana".to_string(),
-                description: "An old bannana".to_string(),
-                image: "/products/banana.jpg".to_string(),
-                price: 7.99,
-            },
-        ];
-
         let cart = vec![];
         let products = vec![];
         link.send_message(Msg::GetProducts);
@@ -128,12 +112,7 @@ impl Component for Home {
             .map(|product: &Product| {
                 let product_id = product.id;
                 html! {
-                    <div>
-                      <img src={&product.image}/>
-                      <div>{&product.name}</div>
-                      <div>{"$"}{&product.price}</div>
-                      <button onclick=self.link.callback(move |_| Msg::AddToCart(product_id))>{"Add to Cart"}</button>
-                   </div>
+                   <ProductCard product={product} on_add_to_cart=self.link.callback(move |_| Msg::AddToCart(product_id)) />
                 }
             })
             .collect();
